@@ -1,0 +1,96 @@
+-- 1. Create Submissions Table (Includes all recent columns)
+create table if not exists public.submissions (
+  id bigint generated always as identity primary key,
+  student_name text,
+  student_email text,
+  leetcode_id text,
+  problem_url text,
+  screenshot_url text,
+  reflection_text text,
+  code_text text,
+  complexity_text text,
+  ai_question text,
+  user_answer text,
+  time_taken_seconds integer default 0,
+  trust_score integer default 0,
+  risk_level text default 'medium',
+  risk_flags text,
+  status text default 'pending',
+  submitted_on date default current_date,
+  created_at timestamptz default now()
+);
+
+-- 2. Add Missing Columns Safely (for existing database schemas)
+alter table public.submissions
+  add column if not exists student_name text,
+  add column if not exists student_email text,
+  add column if not exists leetcode_id text,
+  add column if not exists problem_url text,
+  add column if not exists screenshot_url text,
+  add column if not exists reflection_text text,
+  add column if not exists code_text text,
+  add column if not exists complexity_text text,
+  add column if not exists ai_question text,
+  add column if not exists user_answer text,
+  add column if not exists time_taken_seconds integer default 0,
+  add column if not exists trust_score integer default 0,
+  add column if not exists risk_level text default 'medium',
+  add column if not exists risk_flags text,
+  add column if not exists status text default 'pending',
+  add column if not exists submitted_on date default current_date,
+  add column if not exists created_at timestamptz default now();
+
+-- 3. Migration for legacy leetcode_url
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'submissions'
+      and column_name = 'leetcode_url'
+  ) then
+    update public.submissions
+    set problem_url = leetcode_url
+    where problem_url is null;
+  end if;
+end $$;
+
+-- 4. Single Submission Per Day Constraint
+create unique index if not exists submissions_one_per_day
+on public.submissions (student_name, submitted_on);
+
+-- 5. Row Level Security (RLS) Policies
+alter table public.submissions enable row level security;
+
+drop policy if exists "submissions_insert_public" on public.submissions;
+create policy "submissions_insert_public"
+on public.submissions for insert to public with check (true);
+
+drop policy if exists "submissions_select_public" on public.submissions;
+create policy "submissions_select_public"
+on public.submissions for select to public using (true);
+
+drop policy if exists "submissions_update_public" on public.submissions;
+create policy "submissions_update_public"
+on public.submissions for update to public using (true) with check (true);
+
+-- 6. Storage Bucket Policies (Supports 'screenshots' and 'screenshotss')
+drop policy if exists "screenshots_upload_public" on storage.objects;
+create policy "screenshots_upload_public"
+on storage.objects for insert to public 
+with check (bucket_id in ('screenshots', 'screenshotss'));
+
+drop policy if exists "screenshots_read_public" on storage.objects;
+create policy "screenshots_read_public"
+on storage.objects for select to public 
+using (bucket_id in ('screenshots', 'screenshotss'));
+
+-- 7. Reload Supabase Schema Cache
+notify pgrst, 'reload schema';
+
+ALTER TABLE public.submissions 
+ADD COLUMN IF NOT EXISTS student_email text,
+ADD COLUMN IF NOT EXISTS leetcode_id text;
+
+NOTIFY pgrst, 'reload schema';
