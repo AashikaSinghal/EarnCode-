@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EarnCode MVP</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+  <style>
+    body {
+      padding: 24px;
+      max-width: 1200px;
+      margin: auto;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .small-text {
+      font-size: 14px;
+      color: #888;
+    }
+    dialog article {
+      min-width: 320px;
+    }
+    textarea {
+      min-height: 110px;
+    }
+    table td, table th {
+      vertical-align: top;
+      font-size: 13px;
+      padding: 8px;
+    }
+  </style>
+</head>
+<body class="container">
+
+  <main>
+    <!-- LOGIN SCREEN -->
+    <section id="login-screen">
+      <h2>Welcome to EarnCode</h2>
+      <p class="small-text">Daily coding proof submission MVP</p>
+
+      <form id="login-form" onsubmit="event.preventDefault();">
+        <label for="username">Enter your name</label>
+        <input type="text" id="username" placeholder="Aashika" required />
+
+        <label for="user-email">Enter your email</label>
+        <input type="email" id="user-email" placeholder="aashika@example.com" required />
+
+        <label for="leetcode-id">Enter your LeetCode ID</label>
+        <input type="text" id="leetcode-id" placeholder="aashika_01" required />
+
+        <button type="button" id="login-btn">Enter Dashboard</button>
+      </form>
+    </section>
+
+    <!-- DASHBOARD SCREEN -->
+    <section id="dashboard-screen" class="hidden">
+      <h2 id="welcome-msg">Hello, Student!</h2>
+
+      <div class="grid">
+        <article>
+          🔥 Verified Days<br>
+          <strong id="verified-days">0</strong>
+        </article>
+        <article>
+          🛡️ Latest Verification Score<br>
+          <strong id="trust-score">0</strong>%
+        </article>
+      </div>
+
+      <h3>Submit Today's DSA Proof</h3>
+      <form id="proof-form">
+        <label for="problem-url">Problem URL</label>
+        <input
+          type="url"
+          id="problem-url"
+          placeholder="https://leetcode.com/problems/..."
+          required
+        />
+
+        <label for="screenshot-file">Upload screenshot proof</label>
+        <input
+          type="file"
+          id="screenshot-file"
+          accept="image/*"
+          required
+        />
+
+        <!-- COMPLEXITY COLUMNS -->
+        <div class="grid">
+          <div>
+            <label for="time-complexity">Time Complexity</label>
+            <input
+              type="text"
+              id="time-complexity"
+              placeholder="e.g. O(N) or O(N log N)"
+              autocomplete="off"
+              required
+            />
+          </div>
+          <div>
+            <label for="space-complexity">Space Complexity</label>
+            <input
+              type="text"
+              id="space-complexity"
+              placeholder="e.g. O(1) or O(N)"
+              autocomplete="off"
+              required
+            />
+          </div>
+        </div>
+
+        <label for="reflection-text">Explain your logic in 2 lines</label>
+        <textarea
+          id="reflection-text"
+          placeholder="I used a hash map to store visited numbers..."
+          required
+        ></textarea>
+
+        <label for="code-text">Paste your code used in submission</label>
+        <textarea
+          id="code-text"
+          placeholder="Paste the exact code you wrote..."
+          required
+        ></textarea>
+
+        <button type="submit" id="submit-btn">Verify & Submit</button>
+      </form>
+    </section>
+
+    <!-- QUIZ MODAL -->
+    <dialog id="ai-dialog">
+      <article style="max-width: 500px;">
+        <!-- SCREEN 0: READY CONFIRMATION -->
+        <div id="quiz-ready-screen">
+          <h3>🚀 Rapid-Fire Verification</h3>
+          <p>Form passed initial pre-validation! Ready for the logic quiz?</p>
+          <ul>
+            <li>⚡ <strong>4 Rapid MCQs</strong> (15s per question)</li>
+            <li>💯 <strong>Weightage:</strong> 10% per MCQ (40% Total Quiz Score)</li>
+          </ul>
+          <p class="small-text">You need a combined total score of 75% or higher to pass today's submission!</p>
+          <button type="button" id="start-quiz-btn">I'm Ready, Start Quiz!</button>
+        </div>
+
+        <!-- SCREEN 1: ACTIVE QUIZ DISPLAY -->
+        <div id="quiz-active-screen" class="hidden">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span id="quiz-step-indicator" style="font-weight: bold;">Question 1 of 4</span>
+            <span id="quiz-timer" style="color: #e74c3c; font-weight: bold; font-size: 18px;">⏱️ 15s</span>
+          </div>
+
+          <progress id="quiz-progress-bar" value="100" max="100"></progress>
+
+          <h4 id="quiz-question-text" style="margin-top: 15px;">Question text goes here...</h4>
+
+          <div id="mcq-options-container" class="grid" style="grid-template-columns: 1fr; gap: 10px; margin-top: 15px;">
+            <!-- Options injected dynamically by script.js -->
+          </div>
+
+          <div style="margin-top: 20px;" class="grid">
+            <button type="button" id="submit-quiz-btn" class="hidden">Finalize & Submit 🚀</button>
+          </div>
+        </div>
+      </article>
+    </dialog>
+  </main>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
